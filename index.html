@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Football Game Schedules</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      color: #003366;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    a {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Football Game Schedules</h1>
+
+  <!-- ✅ Keep only this link -->
+  <a href="api_view.php">View Teams</a>
+
+  <h2>Upcoming Premier League Matches</h2>
+
+  <div id="schedule-output">
+    <p>⏳ Loading upcoming matches...</p>
+  </div>
+
+  <script>
+    const apiUrl = "https://www.thesportsdb.com/api/v1/json/123/eventsnextleague.php?id=4328";
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        const events = data.events || [];
+
+        if (events.length === 0) {
+          document.getElementById("schedule-output").innerHTML =
+            "<p style='color:red;'>⚠️ No events found or failed to fetch from API.</p>";
+          return;
+        }
+
+        let tableHTML = `
+          <table>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Match</th>
+              <th>Venue</th>
+              <th>Status</th>
+            </tr>
+        `;
+
+        events.forEach(event => {
+          tableHTML += `
+            <tr>
+              <td>${event.dateEvent || "N/A"}</td>
+              <td>${event.strTime || "N/A"}</td>
+              <td>${event.strEvent || "N/A"}</td>
+              <td>${event.strVenue || "N/A"}</td>
+              <td>${event.strStatus || "Upcoming"}</td>
+            </tr>
+          `;
+        });
+
+        tableHTML += "</table>";
+        document.getElementById("schedule-output").innerHTML = tableHTML;
+      })
+      .catch(error => {
+        console.error("API Fetch Error:", error);
+        document.getElementById("schedule-output").innerHTML =
+          "<p style='color:red;'>❌ Error loading data from API.</p>";
+      });
+  </script>
+</body>
+</html>
