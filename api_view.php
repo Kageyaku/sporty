@@ -35,7 +35,7 @@ $teams = $teamsData['teams'] ?? [];
 </head>
 <body>
     <h1>Premier League Teams – From TheSportsDB</h1>
-    <a href="index.php">← Back</a><br><br>
+    <a href="index.html">← Back</a><br><br>
 
     <input type="text" id="teamSearch" onkeyup="filterTable()" placeholder="🔍 Search for a team..." style="padding:8px; width:300px; margin-bottom:10px;">
 
