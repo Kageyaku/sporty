@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Team Players</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #003366; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        img { border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Players in This Team</h1>
+    <a href="api_view.html">← Back to Teams</a><br><br>
+
+    <div id="player-table">
+        <p>⏳ Loading players...</p>
+    </div>
+
+    <script>
+        function getTeamIDFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("id");
+        }
+
+        function fetchAPIData(url, callback) {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => callback(null, data))
+                .catch(err => callback(err, null));
+        }
+
+        const teamID = getTeamIDFromURL();
+
+        if (!teamID) {
+            document.getElementById("player-table").innerHTML = "<p style='color:red;'>Team ID is required.</p>";
+        } else {
+            const apiUrl = `https://www.thesportsdb.com/api/v1/json/123/lookup_all_players.php?id=${teamID}`;
+
+            fetchAPIData(apiUrl, (err, data) => {
+                if (err || !data || !data.player) {
+                    document.getElementById("player-table").innerHTML = "<p style='color:red;'>⚠️ No players found for this team.</p>";
+                    return;
+                }
+
+                const players = data.player;
+                let tableHTML = `
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Nationality</th>
+                            <th>Thumbnail</th>
+                        </tr>
+                `;
+
+                players.forEach(player => {
+                    tableHTML += `
+                        <tr>
+                            <td>${player.strPlayer || 'N/A'}</td>
+                            <td>${player.strPosition || 'N/A'}</td>
+                            <td>${player.strNationality || 'N/A'}</td>
+                            <td>${player.strThumb ? `<img src="${player.strThumb}" width="50">` : 'N/A'}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += "</table>";
+                document.getElementById("player-table").innerHTML = tableHTML;
+            });
+        }
+    </script>
+</body>
+</html>
