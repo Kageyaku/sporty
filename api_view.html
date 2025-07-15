@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Premier League Teams – From TheSportsDB</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1, h2 { color: #003366; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    img { border-radius: 6px; }
+    a {
+      text-decoration: none;
+      color: #003366;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Premier League Teams – From TheSportsDB</h1>
+  <a href="index.html">← Back</a><br><br>
+
+  <input type="text" id="teamSearch" onkeyup="filterTable()" placeholder="🔍 Search for a team..." style="padding:8px; width:300px; margin-bottom:10px;">
+
+  <div id="table-container">
+    <p>⏳ Loading teams...</p>
+  </div>
+
+  <script>
+    const apiUrl = "https://www.thesportsdb.com/api/v1/json/123/search_all_teams.php?l=English_Premier_League";
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        const teams = data.teams || [];
+        if (teams.length === 0) {
+          document.getElementById("table-container").innerHTML =
+            "<p style='color:red;'>⚠️ No data found in team API response.</p>";
+          return;
+        }
+
+        let tableHTML = `
+          <table id="teamsTable">
+            <thead>
+              <tr><th>Team</th><th>Stadium</th><th>Country</th><th>Logo</th></tr>
+            </thead>
+            <tbody>
+        `;
+
+        teams.forEach(team => {
+          const teamName = team.strTeam || 'N/A';
+          const stadium = team.strStadium || 'N/A';
+          const country = team.strCountry || 'N/A';
+          const logo = team.strTeamBadge ? `<img src="${team.strTeamBadge}" width="50">` : 'N/A';
+          const id = team.idTeam;
+
+          tableHTML += `
+            <tr>
+              <td><a href="players.html?id=${id}">${teamName}</a></td>
+              <td>${stadium}</td>
+              <td>${country}</td>
+              <td>${logo}</td>
+            </tr>
+          `;
+        });
+
+        tableHTML += "</tbody></table>";
+        document.getElementById("table-container").innerHTML = tableHTML;
+      })
+      .catch(error => {
+        console.error("API Error:", error);
+        document.getElementById("table-container").innerHTML =
+          "<p style='color:red;'>❌ Failed to load team data from API.</p>";
+      });
+
+    function filterTable() {
+      const input = document.getElementById("teamSearch");
+      const filter = input.value.toLowerCase();
+      const table = document.getElementById("teamsTable");
+      if (!table) return;
+
+      const tr = table.getElementsByTagName("tr");
+      for (let i = 1; i < tr.length; i++) {
+        const td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          const txtValue = td.textContent || td.innerText;
+          tr[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>
